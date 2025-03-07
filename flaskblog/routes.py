@@ -1,81 +1,15 @@
-from flask import  render_template, url_for, flash, redirect
-from flaskblog.forms import RegistrationForm, LoginForm, ForgotPass
-from flaskblog import app
+from flask import  render_template, url_for, flash, redirect, request, abort, Response
+from flaskblog.forms import RegistrationForm, LoginForm, ForgotPass, UpdateAccountForm, PostForm
+from flaskblog import app, db, bcrypt
 from flaskblog.models import User, Post
-
-posts = [
-    {
-        'author': "John Doe",
-        'title': "Introduction to Python",
-        "content": "Python is a versatile programming language used for various applications such as web development, data analysis, and machine learning.",
-        "date_posted": "2025-02-01"
-    },
-    {
-        'author': "Jane Smith",
-        'title': "Top 10 JavaScript Frameworks",
-        "content": "Explore popular frameworks like React, Vue, and Angular to enhance your web development projects.",
-        "date_posted": "2025-02-02"
-    },
-    {
-        'author': "Michael Brown",
-        'title': "Why Cybersecurity Matters",
-        "content": "Learn the importance of safeguarding your digital assets in today's interconnected world.",
-        "date_posted": "2025-02-03"
-    },
-    {
-        'author': "Emily White",
-        'title': "AI in Healthcare",
-        "content": "Artificial Intelligence is revolutionizing healthcare by improving diagnostics and personalized treatments.",
-        "date_posted": "2025-02-04"
-    },
-    {
-        'author': "David Green",
-        'title': "Best Coding Practices",
-        "content": "Writing clean and maintainable code is essential for long-term project success.",
-        "date_posted": "2025-02-05"
-    },
-    {
-        'author': "Sophia Black",
-        'title': "Understanding Blockchain",
-        "content": "Blockchain is the backbone of cryptocurrencies and has potential applications in various industries.",
-        "date_posted": "2025-02-06"
-    },
-    {
-        'author': "Daniel Garcia",
-        'title': "Guide to Remote Work",
-        "content": "Tips and tools for staying productive while working from home.",
-        "date_posted": "2025-02-07"
-    },
-    {
-        'author': "Olivia Turner",
-        'title': "Exploring Space Technologies",
-        "content": "The advancements in space technology are opening new frontiers for exploration.",
-        "date_posted": "2025-02-08"
-    },
-    {
-        'author': "Liam Carter",
-        'title': "The Rise of FinTech",
-        "content": "FinTech is changing how we manage our finances with innovative solutions.",
-        "date_posted": "2025-02-09"
-    },
-    {
-        'author': "Ava Martinez",
-        'title': "Ethical AI: A Discussion",
-        "content": "As AI grows more powerful, ensuring ethical practices in its deployment becomes crucial.",
-        "date_posted": "2025-02-10"
-    },
-    {
-        'author': "Ethan Wilson",
-        'title': "Cloud Computing Essentials",
-        "content": "Cloud computing has revolutionized how businesses manage their IT infrastructure.",
-        "date_posted": "2025-02-11"
-    }
-]
-
+from flask_login import login_user, current_user, logout_user, login_required
+import os
+from PIL import Image
 
 @app.route("/")
 @app.route("/home")
 def home():
+    posts = Post.query.all()
     return render_template('home.html', posts=posts)
 
 
@@ -85,23 +19,33 @@ def about():
 
 @app.route("/register", methods=['GET','POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        flash(f"Account Created for {form.username.data}!", "success")
-        return redirect(url_for('home'))
+        hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password = hashed_pw)
+        with app.app_context():
+            db.session.add(user)
+            db.session.commit()
+        flash(f"Account Created!, You can login now", "success")
+        return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
 @app.route("/login", methods=['GET','POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        if form.email.data == "james@mail.com" and form.password.data == "123456":
-            flash(f"Logged in successfully", "success")
-            return redirect(url_for('home'))
-        else:
-            flash(f"Login Unsuccessful. Please Try Again!", "danger")
-            return redirect(url_for('login'))
-
+            user = User.query.filter_by(email=form.email.data).first()
+            if user and bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                next_page = request.args.get('next')
+                # print(request.args, next_page)
+                return redirect(next_page) if next_page else redirect(url_for('home'))
+            else:
+                flash(f"Login Unsuccessful. Please Try Again!", "danger")
     return render_template('login.html', title='Login',form=form) 
 
 @app.route("/forgot_password", methods=['GET','POST'])
@@ -111,6 +55,85 @@ def forgotPass():
         flash(f"Password Reset Successfully", "success")
         return redirect(url_for('home'))
     return render_template('forgotPass.html', title='Forgot Password', form=form)
-    # else:
-    #     flash(f"Unable to Reset Your Password", "danger")
-    #     return redirect(url_for('forgotPass'))
+
+@app.route("/logout")
+def logout():
+    logout_user() 
+    return redirect(url_for('home'))
+
+def save_picture(form_picture):
+    random_hex = os.urandom(8).hex()
+    _ , f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex+f_ext 
+    picture_path= os.path.join(app.root_path,'static/profile_pics',picture_fn)
+    output_size = (125,125)
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+    return picture_fn
+
+@app.route("/account", methods=['GET','POST'])
+@login_required
+def account():
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.image_file = picture_file
+        current_user.username = form.username.data
+        current_user.email = form.email.data 
+        db.session.commit()
+        flash("Your account has been updated!", "success")
+        return redirect(url_for('account'))
+    #^ To take care of Post/Redirect/Get (PRG) Design Pattern
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    image_file = url_for('static', filename=f"profile_pics/{current_user.image_file}")
+    return render_template('account.html', title="Account", image_file=image_file, form=form)
+
+@app.route("/post/new", methods=['GET','POST'])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash("Your post has been created!", "success")
+        return redirect(url_for("home"))
+    return render_template("create_post.html",title="New Post", form=form, legend="New Post")
+
+@app.route("/post/<int:post_id>", methods=['GET','POST'])
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template('post.html', title=post.title, post=post)
+
+@app.route("/post/<int:post_id>/update", methods=['GET','POST'])
+@login_required
+def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        db.session.commit()
+        flash("Your post has been updated!", 'success')
+        return redirect(url_for("post", post_id=post.id))
+    elif request.method == "GET":
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template("create_post.html",title="Update Post", form=form, legend = "Update Post")
+
+@app.route("/post/<int:post_id>/delete", methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    db.session.delete(post)
+    db.session.commit()
+    flash("Your post has been deleted!", 'success')
+    return redirect(url_for("home"))

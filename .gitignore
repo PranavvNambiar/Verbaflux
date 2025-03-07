@@ -23,3 +23,5 @@ dist/
 htmlcov/
 .tox/
 docs/_build/
+
+profile_pics
