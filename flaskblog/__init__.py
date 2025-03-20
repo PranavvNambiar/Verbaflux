@@ -1,30 +1,37 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flaskblog.secret import secret
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
-import os
-from dotenv import load_dotenv 
+from flaskblog.config import Config
 
-load_dotenv()
-app = Flask(__name__)
-app.config['SECRET_KEY'] = secret
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 bcrypt = Bcrypt()
-loginManager = LoginManager(app)
-loginManager.login_view = 'login'
+loginManager = LoginManager()
+loginManager.login_view = 'users.login'
 loginManager.login_message_category = 'info'
-app.config['MAIL_SERVER'] = "smtp.gmail.com"
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
-app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
-mail = Mail(app)
 
+mail = Mail()
 
-from flaskblog import routes 
-'''
-This is kept after line 7 to prevent circular import
-'''
+def create_app(config_class=Config): 
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    db.init_app(app)
+    bcrypt.init_app(app)
+    loginManager.init_app(app)
+    mail.init_app(app)
+    
+    from flaskblog.users.routes import users 
+    from flaskblog.posts.routes import posts 
+    from flaskblog.main.routes import main 
+    '''
+    This is kept after line 8 to prevent circular import
+    '''
+
+    app.register_blueprint(users)
+    app.register_blueprint(posts)
+    app.register_blueprint(main)
+    
+    return app
+    

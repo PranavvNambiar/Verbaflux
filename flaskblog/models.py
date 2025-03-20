@@ -1,10 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
 from authlib.jose import JsonWebSignature
 import time
-from flaskblog import db, loginManager,app
+from flaskblog import db, loginManager
 from flask_login import UserMixin
 from datetime import datetime
 import json
+from flask import current_app
 
 @loginManager.user_loader
 def load_user(user_id):
@@ -28,14 +29,14 @@ class User(db.Model, UserMixin):
             "exp": int(time.time()) + expire
         }
         payload_bytes = json.dumps(payload) #* serializes a Python dict into a JSON-formatted string.
-        token = jws.serialize_compact(header, payload_bytes, app.config['SECRET_KEY']) 
+        token = jws.serialize_compact(header, payload_bytes, current_app.config['SECRET_KEY']) 
         return token.decode('utf-8') #! Step is very important as the token must be decoded into string to be sent into the url
     
     @staticmethod
     def verify_reset_token(token):
         jws = JsonWebSignature()
         try:
-            data= jws.deserialize_compact(token, app.config['SECRET_KEY'])
+            data= jws.deserialize_compact(token, current_app.config['SECRET_KEY'])
             payload_dict = json.loads(data['payload'].decode('utf-8'))
             if payload_dict["exp"] < int(time.time()):  # Expired token check
                 return None

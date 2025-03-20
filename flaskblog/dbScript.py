@@ -1,8 +1,8 @@
 from flaskblog import db
 from flaskblog.models import User, Post
-from flaskblog import app
+from flask import current_app
 from datetime import datetime
-with app.app_context():
+with current_app.current_app_context():
     # db.create_all()
     
     all = User.query.all()
