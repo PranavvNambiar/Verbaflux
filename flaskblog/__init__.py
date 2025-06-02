@@ -10,7 +10,6 @@ bcrypt = Bcrypt()
 loginManager = LoginManager()
 loginManager.login_view = 'users.login'
 loginManager.login_message_category = 'info'
-
 mail = Mail()
 
 def create_app(config_class=Config): 
@@ -21,23 +20,19 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     loginManager.init_app(app)
     mail.init_app(app)
-    
+
     from flaskblog.users.routes import users 
     from flaskblog.posts.routes import posts 
     from flaskblog.main.routes import main 
     from flaskblog.errors.handlers import errors 
-    '''
-    This is kept after line 8 to prevent circular import
-    '''
 
     app.register_blueprint(users)
     app.register_blueprint(posts)
     app.register_blueprint(main)
     app.register_blueprint(errors)
-    
-    @app.before_first_request
-    def create_tables():
+
+    # ✅ Register the table creation hook
+    with app.app_context():
         db.create_all()
-        
+
     return app
-    
