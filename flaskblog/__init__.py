@@ -35,5 +35,9 @@ def create_app(config_class=Config):
     app.register_blueprint(main)
     app.register_blueprint(errors)
     
+    @app.before_first_request
+    def create_tables():
+        db.create_all()
+        
     return app
     
