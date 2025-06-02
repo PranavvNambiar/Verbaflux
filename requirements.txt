@@ -26,8 +26,10 @@ Flask-Mail==0.10.0
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
 greenlet==3.1.1
+gunicorn==23.0.0
 idna==3.10
 ipython==8.12.3
+itsdangerous==2.2.0
 jedi==0.19.2
 Jinja2==3.1.5
 jsonschema==4.23.0

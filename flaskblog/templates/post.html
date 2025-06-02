@@ -1,37 +1,61 @@
 {% extends 'layout.html' %}
 {% block content %}
-<article class="media content-section">
-    <div class="d-flex align-items-start">
-        <img src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}"
-            class="rounded-circle article-img">
-        <div class="media-body w-100">
-            <div class="article-metadata d-flex justify-content-between">
-                <a class="mr-2" href="{{url_for('posts.user_posts',username=post.author.username)}}">{{ post.author.username }}</a>
-                <small class="text-muted">{{ post.date_posted.strftime('%d-%m-%Y') }}</small>
-            </div>
-            {%if post.author == current_user%}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-body">
+            <!-- Author Info -->
+        <div class="d-flex align-items-center mb-3">
+            <img src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}"
+                class="rounded-circle border me-2" width="55" height="55" alt="Author Profile">
             <div>
-                <a href="{{url_for('posts.update_post', post_id=post.id)}}"
-                    class="btn btn-secondary btn-sm mt-1 mb-1">Update</a>
-                <button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal"
-                    data-bs-target="#deleteModal">Delete</button>
+                <h6 class="m-0 fw-bold">
+                    <a href="{{ url_for('users.user_posts', username=post.author.username) }}"
+                        class="text-decoration-none author-username">
+                        {{ post.author.username }}
+                    </a>
+                </h6>
+                <small class="text-muted">📅 {{ post.date_posted.strftime('%d-%m-%Y') }}</small>
+            </div>
+        </div>
+
+
+            <!-- Post Title -->
+            <h2 class="fw-bold text-gradient">{{ post.title }}</h2>
+
+            <!-- Post Content -->
+            <p class="fs-5 text-muted">{{ post.content }}</p>
+
+            <!-- Post Actions (Only for the Author) -->
+            {% if post.author == current_user %}
+            <div class="mt-3">
+                <a href="{{ url_for('posts.update_post', post_id=post.id) }}" class="btn btn-warning btn-sm">
+                    Update
+                </a>
+                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#deleteModal">
+                    Delete
+                </button>
             </div>
             {% endif %}
-            <h2 class="article-title">{{ post.title }}</h2>
-            <p class="article-content">{{ post.content }}</p>
         </div>
     </div>
-</article>
-<!-- Modal -->
+</div>
+
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Post?</h1>
+                <h5 class="modal-title text-danger fw-bold" id="deleteModalLabel">⚠️ Confirm Deletion</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body">
+                <p class="fs-6">Are you sure you want to <strong>delete</strong> this post? This action cannot be
+                    undone.</p>
+            </div>
             <div class="modal-footer">
-                <form action="{{url_for('posts.delete_post', post_id=post.id)}}" method="post">
+                <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="post">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <input type="submit" class="btn btn-danger" value="Delete">
                 </form>
             </div>

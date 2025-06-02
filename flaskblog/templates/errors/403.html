@@ -1,0 +1,16 @@
+{% extends 'layout_error.html' %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="error-container p-5 shadow-lg rounded">
+        <h1 class="display-4 text-warning">
+            <i class="fas fa-user-lock"></i> 403
+        </h1>
+        <p class="lead">Access Denied! You do not have permission to access this page.</p>
+        <p class="text-muted">Please check your account permissions or contact support.</p>
+        <a href="{{ url_for('main.home') }}" class="btn btn-primary mt-3">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock content %}

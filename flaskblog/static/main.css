@@ -1,82 +1,260 @@
+/* General Layout Fixes */
+html {
+  height: 100%;
+}
+
+/* Ensure Bootstrap's dark mode compatibility */
 body {
-    background: #fafafa;
-    color: #333333;
-    margin-top: 5rem;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    color: #444444;
-  }
-  
-  .bg-steel {
-    background-color: #5f788a;
-  }
-  
-  .site-header .navbar-nav .nav-link {
-    color: #cbd5db;
-  }
-  
-  .site-header .navbar-nav .nav-link:hover {
-    color: #ffffff;
-  }
-  
-  .site-header .navbar-nav .nav-link.active {
-    font-weight: 500;
-  }
-  
-  .content-section {
-    background: #ffffff;
-    padding: 10px 20px;
-    border: 1px solid #dddddd;
-    border-radius: 3px;
-    margin-bottom: 20px;
-  }
-  
-  .article-title {
-    color: #444444;
-  }
-  
-  a.article-title:hover {
-    color: #428bca;
-    text-decoration: none;
-  }
-  
-  .article-content {
-    white-space: pre-line;
-  }
-  
-  .article-img {
-    height: 65px;
-    width: 65px;
-    margin-right: 16px;
-    object-fit: cover;
-  }
-  
-  .article-metadata {
-    padding-bottom: 1px;
-    margin-bottom: 4px;
-    
-    border-bottom: 1px solid #e3e3e3;
-  }
-  
-  .article-metadata a:hover {
-    color: #333;
-    text-decoration: none;
-  }
-  
-  .article-svg {
-    width: 25px;
-    height: 25px;
-    vertical-align: middle;
-  }
-  
-  .account-img {
-    height: 125px;
-    width: 125px;
-    margin-right: 15px;
-    margin-bottom: 10px;
-  }
-  
-  .account-heading {
-    font-size: 2.5rem;
-  }
+  background: var(--bs-body-bg) !important;
+  color: var(--bs-body-color) !important;
+  margin-top: 5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
+}
+
+/* Light Mode Adjustments */
+[data-bs-theme="light"] {
+  --bs-body-bg: #f5f5f5; /* Softer off-white background */
+  --bs-body-color: #2c2c2c; /* Darker text */
+  --bs-secondary-bg: #e0e0e0; /* Light gray navbar & elements */
+  --bs-border-color: #ccc; /* Softer border color */
+  --bs-primary: #0077cc; /* Muted blue primary color */
+  --bs-primary-hover: #005fa3;
+  --bs-nav-hover: #d6d6d6; /* Improved navbar hover for light mode */
+  --bs-text-hover: #004080; /* Stronger hover text color */
+  --bs-footer-bg: #f8f9fa; /* Light background for footer */
+  --bs-footer-text: #333; /* Darker text for footer */
+  --bs-footer-border: #ddd; /* Light border for footer */
+}
+
+/* Dark Mode Adjustments */
+[data-bs-theme="dark"] {
+  --bs-body-bg: #0d0d0d; /* True dark background */
+  --bs-body-color: #e0e0e0; /* Softer white text */
+  --bs-secondary-bg: #181818; /* Dark gray navbar & sections */
+  --bs-border-color: #333; /* Darker border */
+  --bs-primary: #3399ff; /* Brighter blue for contrast */
+  --bs-primary-hover: #1a75ff;
+  --bs-nav-hover: #222222; /* Darker hover effect for navbar */
+  --bs-text-hover: #66b2ff; /* Brighter hover text in dark mode */
+  --bs-footer-bg: #181818; /* Dark background for footer */
+  --bs-footer-text: #e0e0e0; /* Lighter text for footer */
+  --bs-footer-border: #444; /* Dark border for footer */
+}
+
+/* Navbar Styling */
+.bg-steel {
+  background-color: var(--bs-secondary-bg);
+}
+
+.site-header .navbar-nav .nav-link {
+  color: var(--bs-body-color);
+  transition: color 0.3s, background-color 0.3s;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+/* Navbar Hover Effects */
+[data-bs-theme="light"] .site-header .navbar-nav .nav-link:hover {
+  background-color: var(--bs-nav-hover);
+  color: var(--bs-text-hover);
+}
+
+[data-bs-theme="dark"] .site-header .navbar-nav .nav-link:hover {
+  background-color: var(--bs-nav-hover);
+  color: var(--bs-text-hover);
+}
+
+.site-header .navbar-nav .nav-link.active {
+  font-weight: 500;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--bs-primary-hover);
+  border-color: var(--bs-primary-hover);
+}
+
+/* Footer */
+footer {
+  width: 100%;
+  background: var(--bs-footer-bg);
+  color: var(--bs-footer-text);
+  text-align: center;
+  margin-top: auto; /* Ensures footer stays at the bottom */
+  border-top: 1px solid var(--bs-footer-border);
+}
+
+/* Footer Icons */
+/* Footer Icons - Adapt to Light/Dark Mode */
+.footer-link {
+  color: var(--bs-body-color); /* Dark in Light Mode, White in Dark Mode */
+  transition: color 0.3s ease-in-out;
+}
+
+.footer-link:hover {
+  color: var(--bs-primary); /* Slight hover effect */
+}
+
+
+/* Main Content Section */
+.content-section {
+  background: var(--bs-body-bg);
+  padding: 10px 20px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 5px;
+  margin-bottom: 20px;
+  box-shadow: var(--bs-box-shadow);
+}
+
+/* Article Titles */
+.article-title {
+  color: var(--bs-body-color);
+}
+
+a.article-title:hover {
+  color: var(--bs-primary);
+  text-decoration: none;
+}
+
+/* Article Content */
+.article-content {
+  white-space: pre-line;
+}
+
+/* Article Images */
+.article-img {
+  height: 65px;
+  width: 65px;
+  margin-right: 16px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+/* Metadata Styling */
+.article-metadata {
+  padding-bottom: 1px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 0.9rem;
+}
+
+.article-metadata a {
+  color: var(--bs-body-color);
+}
+
+.article-metadata a:hover {
+  color: var(--bs-primary);
+  text-decoration: none;
+}
+
+/* SVG Icons */
+.article-svg {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+}
+
+/* Account Section */
+.account-img {
+  height: 125px;
+  width: 125px;
+  margin-right: 15px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--bs-border-color);
+}
+
+/* Flash Messages */
+.alert {
+  border-radius: 5px;
+}
+
+/* Sidebar */
+.list-group-item {
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+}
+
+.list-group-item:hover {
+  background: var(--bs-secondary-bg);
+  color: var(--bs-emphasis-color);
+}
+
+/* Form Inputs */
+.form-control {
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+.form-control:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 5px var(--bs-primary);
+}
+
+/* Light Mode Button Hover Effect */
+.btn-light:hover {
+  background-color: #555 !important; /* Darker gray instead of black */
+  color: #fff !important;
+}
+
+/* Dark Mode Button Hover Effect */
+.btn-dark:hover {
+  background-color: #222 !important; /* Even darker on hover */
+  color: #ddd !important;
+}
+
+/* Navbar Brand in Light Mode */
+.navbar-brand-light {
+  color: #222 !important;
+}
+
+.card {
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color); /* Ensures border visibility */
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* .text-gradient {
+  background: linear-gradient(to right, #ff8c00, #ff2d55);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+} */
+
+.btn {
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+/* Improve username visibility in dark mode */
+.author-username {
+  color: var(--bs-body-color) !important; /* Adapts to light/dark mode */
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+.author-username:hover {
+  color: var(--bs-primary) !important; /* Adds contrast on hover */
+}
